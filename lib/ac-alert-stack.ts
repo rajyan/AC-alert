@@ -35,7 +35,7 @@ export class AcAlertStack extends cdk.Stack {
       description: 'rule on 10pm',
       schedule: Schedule.cron({
         minute: '0/30',
-        hour: '22'
+        hour: '7'
       }),
       targets: [new LambdaFunction(func)]
     });
@@ -44,7 +44,7 @@ export class AcAlertStack extends cdk.Stack {
       description: 'rule on 11pm',
       schedule: Schedule.cron({
         minute: '0/11',
-        hour: '23'
+        hour: '8'
       }),
       targets: [new LambdaFunction(func)]
     });
