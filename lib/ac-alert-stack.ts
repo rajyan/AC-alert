@@ -2,6 +2,7 @@ import * as cdk from '@aws-cdk/core';
 import {Bucket} from '@aws-cdk/aws-s3';
 import {Runtime} from '@aws-cdk/aws-lambda';
 import {NodejsFunction} from '@aws-cdk/aws-lambda-nodejs';
+import {StringParameter} from '@aws-cdk/aws-ssm';
 import {Rule, Schedule} from '@aws-cdk/aws-events';
 import {LambdaFunction} from '@aws-cdk/aws-events-targets';
 
@@ -21,10 +22,14 @@ export class AcAlertStack extends cdk.Stack {
       handler: 'main',
       environment: {
         BUCKET_NAME: bucket.bucketName,
-        USER_NAME: process.env.USERNAME ?? '',
+        USER_NAME: StringParameter.fromStringParameterName(this, 'UserName', '/ac-alert/username').stringValue,
         API_URL: 'https://kenkoooo.com/atcoder/atcoder-api/results?user=',
-        WEBHOOK_URL: process.env.WEBHOOOK ?? ''
-      }
+        WEBHOOK_URL: StringParameter.fromSecureStringParameterAttributes(this, 'WebhookUrl', {
+          parameterName: '/ac-alert/slack-webhook-url',
+          version: 1
+        }).stringValue
+      },
+      timeout: cdk.Duration.seconds(20)
     });
     bucket.grantReadWrite(func);
 
