@@ -1,23 +1,24 @@
 import * as cdk from '@aws-cdk/core';
-import * as s3 from '@aws-cdk/aws-s3';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as events from '@aws-cdk/aws-events';
-import * as targets from '@aws-cdk/aws-events-targets';
+import {Bucket} from '@aws-cdk/aws-s3';
+import {Runtime} from '@aws-cdk/aws-lambda';
+import {NodejsFunction} from '@aws-cdk/aws-lambda-nodejs';
+import {Rule, Schedule} from '@aws-cdk/aws-events';
+import {LambdaFunction} from '@aws-cdk/aws-events-targets';
 
 export class AcAlertStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const bucket = new s3.Bucket(this, 'LastACMemo', {
+    const bucket = new Bucket(this, 'LastACMemo', {
       bucketName: 'last-ac-memo',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true
     });
 
-    const func = new lambda.Function(this, 'Checker', {
-      runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset('src'),
-      handler: 'ac-checker.main',
+    const func = new NodejsFunction(this, 'Checker', {
+      runtime: Runtime.NODEJS_14_X,
+      entry: 'src/ac-checker.ts',
+      handler: 'main',
       environment: {
         BUCKET_NAME: bucket.bucketName,
         USER_NAME: process.env.USERNAME ?? '',
@@ -27,23 +28,23 @@ export class AcAlertStack extends cdk.Stack {
     });
     bucket.grantReadWrite(func);
 
-    const rule1 = new events.Rule(this, 'Rule1', {
+    const rule1 = new Rule(this, 'Rule1', {
       ruleName: 'ac-alert-rule1',
       description: 'rule on 10pm',
-      schedule: events.Schedule.cron({
+      schedule: Schedule.cron({
         minute: '0/30',
         hour: '22'
       }),
-      targets: [new targets.LambdaFunction(func)]
+      targets: [new LambdaFunction(func)]
     });
-    const rule2 = new events.Rule(this, 'Rule2', {
+    const rule2 = new Rule(this, 'Rule2', {
       ruleName: 'ac-alert-rule2',
       description: 'rule on 11pm',
-      schedule: events.Schedule.cron({
+      schedule: Schedule.cron({
         minute: '0/11',
         hour: '23'
       }),
-      targets: [new targets.LambdaFunction(func)]
+      targets: [new LambdaFunction(func)]
     });
 
   }
