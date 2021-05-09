@@ -58,11 +58,9 @@ exports.main = async function () {
       }
     }
 
-    axios.post(webhookUrl, {
-      body: {
-        text: uniqueAC ? "streak続いています！" : "今日はまだ解いていないよ！"
-      }
-    });
+    await axios.post(webhookUrl, {
+      text: uniqueAC ? "streak続いています！" : "今日はまだ解いていないよ！"
+    })
 
     return {
       statusCode: 200,
