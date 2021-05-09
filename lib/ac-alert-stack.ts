@@ -28,7 +28,8 @@ export class AcAlertStack extends cdk.Stack {
     bucket.grantReadWrite(func);
 
     const rule1 = new events.Rule(this, 'Rule1', {
-      ruleName: 'rule on 10pm',
+      ruleName: 'ac-alert-rule1',
+      description: 'rule on 10pm',
       schedule: events.Schedule.cron({
         minute: '0/30',
         hour: '22'
@@ -36,7 +37,8 @@ export class AcAlertStack extends cdk.Stack {
       targets: [new targets.LambdaFunction(func)]
     });
     const rule2 = new events.Rule(this, 'Rule2', {
-      ruleName: 'rule on 11pm',
+      ruleName: 'ac-alert-rule2',
+      description: 'rule on 11pm',
       schedule: events.Schedule.cron({
         minute: '0/11',
         hour: '23'
