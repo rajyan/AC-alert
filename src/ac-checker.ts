@@ -48,8 +48,19 @@ exports.main = async function () {
       }
     }
 
+    const ACMessages = [
+      "さんのstreak続いています！",
+      "さん、streak続けて偉い！",
+      "さん、今日も頑張りました！",
+      "さん、さすがです！",
+      "さん、明日も頑張ろう！"
+    ];
+
+    const ACMessage = userName + ACMessages[Math.floor(Math.random() * ACMessages.length)];
+    const WAMessage = `今日はまだ解いていないよ！ => <https://kenkoooo.com/atcoder/#/user/${userName}?userPageTab=Recommendation | ${userName}さんのおすすめ問題>`;
+
     await axios.post(webhookUrl, {
-      text: uniqueAC ? "streak続いています！" : "今日はまだ解いていないよ！"
+      text: uniqueAC ? ACMessage : WAMessage
     })
 
     return {
