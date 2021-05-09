@@ -58,10 +58,8 @@ exports.main = async function () {
       }
     }
 
-    await axios.post(webhookUrl, {
+    axios.post(webhookUrl, {
       body: {
-        username: 'AC-alert',
-        icon_emoji: ":ac:",
         text: uniqueAC ? "streak続いています！" : "今日はまだ解いていないよ！"
       }
     });
