@@ -13,11 +13,18 @@ if (!bucketName || !userName || !apiUrl || !webhookUrl) {
 exports.main = async function () {
   try {
 
-    // const s3 = new S3();
-    // const lastAC = await s3.getObject({
-    //   Bucket: bucketName,
-    //   Key: 'lastAC'
-    // });
+    const s3 = new S3();
+    const lastAC = await s3.getObject({
+      Bucket: bucketName,
+      Key: 'lastAC'
+    }).promise();
+
+    const today = (new Date()).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo'});
+    if (lastAC.Body === today) {
+      return {
+        statusCode: 200,
+      };
+    }
 
     const response = await axios.get(apiUrl + userName, {
       headers: {
@@ -27,7 +34,6 @@ exports.main = async function () {
     const data: submissionData[] = response.data;
 
     let solved = new Set<string>();
-    const today = (new Date()).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo'})
     let todayAC: string[] = [];
     for (const sub of data) {
       if (sub.result !== 'AC') continue;
@@ -44,7 +50,12 @@ exports.main = async function () {
     for (const problemId of todayAC) {
       if (!solved.has(problemId)) {
         uniqueAC = true;
-        break
+        await s3.putObject({
+          Bucket: bucketName,
+          Key: 'lastAC',
+          Body: today
+        }).promise();
+        break;
       }
     }
 
