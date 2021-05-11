@@ -26,7 +26,7 @@ exports.main = async function () {
       });
 
     const today = (new Date()).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo'});
-    if (lastAC && typeof lastAC.Body === 'string' && JSON.parse(lastAC.Body).lastAC === today) {
+    if (lastAC && lastAC.Body && JSON.parse(lastAC.Body.toString())?.lastAC === today) {
       return {
         statusCode: 200,
       };
