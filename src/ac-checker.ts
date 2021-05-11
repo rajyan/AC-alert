@@ -1,5 +1,6 @@
 import {S3} from 'aws-sdk';
 import axios from 'axios';
+import {isString} from "util";
 
 const bucketName = process.env.BUCKET_NAME;
 const userName = process.env.USER_NAME;
@@ -16,11 +17,17 @@ exports.main = async function () {
     const s3 = new S3();
     const lastAC = await s3.getObject({
       Bucket: bucketName,
-      Key: 'lastAC'
-    }).promise();
+      Key: userName
+    }).promise()
+      .catch((e) => {
+        // ignore NoSuchKey
+        if (e.statusCode !== 404) {
+          throw e;
+        }
+      });
 
     const today = (new Date()).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo'});
-    if (lastAC.Body === today) {
+    if (lastAC && typeof lastAC.Body === 'string' && JSON.parse(lastAC.Body).lastAC === today) {
       return {
         statusCode: 200,
       };
@@ -46,17 +53,23 @@ exports.main = async function () {
       }
     }
 
-    let uniqueAC = false;
+    let todayData = null;
     for (const problemId of todayAC) {
       if (!solved.has(problemId)) {
-        uniqueAC = true;
-        await s3.putObject({
-          Bucket: bucketName,
-          Key: 'lastAC',
-          Body: today
-        }).promise();
+        todayData = {
+          lastAC: today,
+          solvedProblem: problemId,
+        };
         break;
       }
+    }
+
+    if (todayData) {
+      await s3.putObject({
+        Bucket: bucketName,
+        Key: userName,
+        Body: todayData
+      }).promise();
     }
 
     const ACMessages = [
@@ -71,7 +84,7 @@ exports.main = async function () {
     const WAMessage = `今日はまだ解いていないよ！ => <https://kenkoooo.com/atcoder/#/user/${userName}?userPageTab=Recommendation | ${userName}さんのおすすめ問題>`;
 
     await axios.post(webhookUrl, {
-      text: uniqueAC ? ACMessage : WAMessage
+      text: !!todayData ? ACMessage : WAMessage
     })
 
     return {
