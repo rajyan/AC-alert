@@ -14,7 +14,7 @@ exports.main = async function () {
   try {
 
     const s3 = new S3();
-    const lastAC = await s3.getObject({
+    const solvedData = await s3.getObject({
       Bucket: bucketName,
       Key: userName
     }).promise()
@@ -26,7 +26,7 @@ exports.main = async function () {
       });
 
     const today = (new Date()).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo'});
-    if (lastAC && lastAC.Body && JSON.parse(lastAC.Body.toString())?.lastAC === today) {
+    if (solvedData && solvedData.Body && JSON.parse(solvedData.Body.toString())?.lastAC === today) {
       return {
         statusCode: 200,
       };

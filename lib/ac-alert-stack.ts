@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import {Bucket} from '@aws-cdk/aws-s3';
+import {Bucket, BucketEncryption} from '@aws-cdk/aws-s3';
 import {Runtime} from '@aws-cdk/aws-lambda';
 import {NodejsFunction} from '@aws-cdk/aws-lambda-nodejs';
 import {StringParameter} from '@aws-cdk/aws-ssm';
@@ -10,10 +10,13 @@ export class AcAlertStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const bucket = new Bucket(this, 'LastACMemo', {
-      bucketName: 'last-ac-memo',
+    const bucket = new Bucket(this, 'Bucket', {
+      bucketName: 'ac-alert-bucket',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      autoDeleteObjects: true
+      autoDeleteObjects: true,
+      encryption: BucketEncryption.S3_MANAGED,
+      versioned: true,
+      lifecycleRules: [{expiration: cdk.Duration.days(30)}]
     });
 
     const func = new NodejsFunction(this, 'Checker', {
@@ -24,7 +27,7 @@ export class AcAlertStack extends cdk.Stack {
         BUCKET_NAME: bucket.bucketName,
         USER_NAME: StringParameter.fromStringParameterName(this, 'UserName', '/ac-alert/username').stringValue,
         API_URL: 'https://kenkoooo.com/atcoder/atcoder-api/results?user=',
-        WEBHOOK_URL: StringParameter.fromStringParameterName(this, 'WebhookUrl',  '/ac-alert/slack-webhook-url').stringValue,
+        WEBHOOK_URL: StringParameter.fromStringParameterName(this, 'WebhookUrl', '/ac-alert/slack-webhook-url').stringValue,
       },
       timeout: cdk.Duration.seconds(20)
     });
