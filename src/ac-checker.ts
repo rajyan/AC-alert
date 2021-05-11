@@ -1,6 +1,5 @@
 import {S3} from 'aws-sdk';
 import axios from 'axios';
-import {isString} from "util";
 
 const bucketName = process.env.BUCKET_NAME;
 const userName = process.env.USER_NAME;
@@ -68,7 +67,7 @@ exports.main = async function () {
       await s3.putObject({
         Bucket: bucketName,
         Key: userName,
-        Body: todayData
+        Body: JSON.stringify(todayData)
       }).promise();
     }
 
@@ -92,6 +91,7 @@ exports.main = async function () {
     };
   } catch (error) {
     const body = error.stack || JSON.stringify(error, null, 2);
+    console.log(body)
     return {
       statusCode: 400,
       body: JSON.stringify(body)
