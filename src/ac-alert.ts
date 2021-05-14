@@ -1,42 +1,49 @@
-import {S3} from 'aws-sdk';
-import axios from 'axios';
-import {Env, SolvedData, SubmissionData} from './interface';
-import {createMessage} from "./slack-mesage";
+import { S3 } from "aws-sdk";
+import axios from "axios";
+import { Env, SolvedData, SubmissionData } from "./interface";
+import { createMessage } from "./slack-mesage";
 
-export const AcAlert = async function () {
+export const AcAlert = async function (): Promise<{
+  statusCode: number;
+  body: string;
+}> {
   try {
-
     // fetch env
     const env: Env = Env.check({
       bucketName: process.env.BUCKET_NAME,
       userName: process.env.USER_NAME,
       apiUrl: process.env.API_URL,
       webhookUrl: process.env.WEBHOOK_URL,
-    })
+    });
 
     // get solved data from S3
     const s3 = new S3();
-    const bucketObject = await s3.getObject({
-      Bucket: env.bucketName,
-      Key: env.userName
-    }).promise()
+    const bucketObject = await s3
+      .getObject({
+        Bucket: env.bucketName,
+        Key: env.userName,
+      })
+      .promise()
       .catch((e) => {
         // ignore NoSuchKey
         if (e.statusCode !== 404) {
           throw e;
         }
         return {
-          Body: null
+          Body: null,
         };
       });
 
     // return if already solved a problem today
-    const today = (new Date()).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo'});
+    const today = new Date().toLocaleDateString("ja-JP", {
+      timeZone: "Asia/Tokyo",
+    });
     if (bucketObject?.Body) {
       const body = SolvedData.check(JSON.parse(bucketObject.Body.toString()));
       if (body.lastAC === today) {
         return {
           statusCode: 200,
+          body: "ok",
         };
       }
     }
@@ -44,18 +51,20 @@ export const AcAlert = async function () {
     // get submission data from ac-problems API
     const response = await axios.get(env.apiUrl + env.userName, {
       headers: {
-        'Accept-Encoding': 'Encoding:gzip',
-      }
+        "Accept-Encoding": "Encoding:gzip",
+      },
     });
     const data: SubmissionData[] = response.data;
 
     // classify data by solved date
-    let solvedToday: string[] = [];
-    let solvedBefore = new Set<string>();
+    const solvedToday: string[] = [];
+    const solvedBefore = new Set<string>();
     for (const sub of data) {
-      if (sub.result !== 'AC') continue;
+      if (sub.result !== "AC") continue;
       const date = new Date(sub.epoch_second * 1000);
-      const solvedDate = date.toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo'});
+      const solvedDate = date.toLocaleDateString("ja-JP", {
+        timeZone: "Asia/Tokyo",
+      });
       if (solvedDate === today) {
         solvedToday.push(sub.problem_id);
       } else {
@@ -77,27 +86,29 @@ export const AcAlert = async function () {
 
     // save if todayData exists
     if (todayData) {
-      await s3.putObject({
-        Bucket: env.bucketName,
-        Key: env.userName,
-        Body: JSON.stringify(todayData)
-      }).promise();
+      await s3
+        .putObject({
+          Bucket: env.bucketName,
+          Key: env.userName,
+          Body: JSON.stringify(todayData),
+        })
+        .promise();
     }
 
     // post message to slack
     await axios.post(env.webhookUrl, {
-      text: createMessage(!!todayData, env.userName)
-    })
+      text: createMessage(!!todayData, env.userName),
+    });
 
     return {
       statusCode: 200,
+      body: "ok",
     };
-
   } catch (error) {
     const body = error.stack || JSON.stringify(error, null, 2);
     return {
       statusCode: 400,
-      body: JSON.stringify(body)
-    }
+      body: JSON.stringify(body),
+    };
   }
-}
+};

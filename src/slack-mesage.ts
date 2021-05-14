@@ -1,4 +1,4 @@
-import {format} from "util";
+import { format } from "util";
 
 const ACMessages = [
   "%sさんのstreak続いています！",
@@ -10,8 +10,6 @@ const ACMessages = [
   "%sさん、素晴らしい！",
 ];
 
-const recommendation = "<https://kenkoooo.com/atcoder/#/user/%s?userPageTab=Recommendation | %sさんのおすすめ問題>"
-
 const WAMessages = [
   "今日はまだ解いていないよ！ =>",
   "まだ間に合います！ =>",
@@ -19,15 +17,16 @@ const WAMessages = [
   "解いていこう！ =>",
 ];
 
+const recommendation = "<https://kenkoooo.com/atcoder/#/user/%s?userPageTab=Recommendation | %sさんのおすすめ問題>";
+
 const pick = (array: string[]) => {
   return array[Math.floor(Math.random() * array.length)];
-}
+};
 
-export const createMessage = (solved: boolean, userName: string) => {
+export const createMessage = (solved: boolean, userName: string): string => {
   if (solved) {
-    return format(pick(ACMessages), userName)
+    return format(pick(ACMessages), userName);
+  } else {
+    return pick(WAMessages) + format(recommendation, userName, userName);
   }
-  else {
-    return pick(WAMessages) + format(recommendation, userName, userName)
-  }
-}
+};
