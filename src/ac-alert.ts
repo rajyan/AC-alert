@@ -3,7 +3,7 @@ import axios from 'axios';
 import {Env, SolvedData, submissionData} from './interface';
 import {createMessage} from "./slack-mesage";
 
-const ACChecker = async function () {
+export const ACAlert = async function () {
   try {
 
     // fetch env
