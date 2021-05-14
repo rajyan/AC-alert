@@ -1,4 +1,4 @@
-import {Number, Record, Static, String,} from 'runtypes'
+import {Record, Static, String,} from 'runtypes'
 
 export const Env = Record({
   bucketName: String,
@@ -6,14 +6,15 @@ export const Env = Record({
   apiUrl: String,
   webhookUrl: String
 });
+export type Env = Static<typeof Env>;
 
-export let SolvedData = Record({
+export const SolvedData = Record({
   lastAC: String,
   solvedProblem: String,
 });
 export type SolvedData = Static<typeof SolvedData>;
 
-export interface submissionData {
+export type SubmissionData = {
   id: number,
   epoch_second: number,
   problem_id: string,

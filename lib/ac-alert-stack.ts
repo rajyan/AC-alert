@@ -22,7 +22,7 @@ export class AcAlertStack extends cdk.Stack {
     const func = new NodejsFunction(this, 'Checker', {
       runtime: Runtime.NODEJS_14_X,
       entry: 'src/ac-checker.ts',
-      handler: 'ACAlert',
+      handler: 'AcAlert',
       environment: {
         BUCKET_NAME: bucket.bucketName,
         USER_NAME: StringParameter.fromStringParameterName(this, 'UserName', '/ac-alert/username').stringValue,
@@ -33,7 +33,7 @@ export class AcAlertStack extends cdk.Stack {
     });
     bucket.grantReadWrite(func);
 
-    const rule1 = new Rule(this, 'Rule1', {
+    new Rule(this, 'Rule1', {
       ruleName: 'ac-alert-rule1',
       description: 'rule on 10pm',
       schedule: Schedule.cron({
@@ -42,7 +42,7 @@ export class AcAlertStack extends cdk.Stack {
       }),
       targets: [new LambdaFunction(func)]
     });
-    const rule2 = new Rule(this, 'Rule2', {
+    new Rule(this, 'Rule2', {
       ruleName: 'ac-alert-rule2',
       description: 'rule on 11pm',
       schedule: Schedule.cron({

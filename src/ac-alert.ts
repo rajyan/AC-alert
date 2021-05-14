@@ -1,13 +1,13 @@
 import {S3} from 'aws-sdk';
 import axios from 'axios';
-import {Env, SolvedData, submissionData} from './interface';
+import {Env, SolvedData, SubmissionData} from './interface';
 import {createMessage} from "./slack-mesage";
 
-export const ACAlert = async function () {
+export const AcAlert = async function () {
   try {
 
     // fetch env
-    const env = Env.check({
+    const env: Env = Env.check({
       bucketName: process.env.BUCKET_NAME,
       userName: process.env.USER_NAME,
       apiUrl: process.env.API_URL,
@@ -47,7 +47,7 @@ export const ACAlert = async function () {
         'Accept-Encoding': 'Encoding:gzip',
       }
     });
-    const data: submissionData[] = response.data;
+    const data: SubmissionData[] = response.data;
 
     // classify data by solved date
     let solvedToday: string[] = [];
