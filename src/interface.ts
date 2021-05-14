@@ -7,10 +7,11 @@ export const Env = Record({
   webhookUrl: String
 });
 
-export const SolvedData = Record({
+export let SolvedData = Record({
   lastAC: String,
   solvedProblem: String,
 });
+export type SolvedData = Static<typeof SolvedData>;
 
 export interface submissionData {
   id: number,

@@ -64,7 +64,7 @@ const ACChecker = async function () {
     }
 
     // look for unique AC today
-    let todayData = null;
+    let todayData: SolvedData | null = null;
     for (const problemId of solvedToday) {
       if (!solvedBefore.has(problemId)) {
         todayData = {
