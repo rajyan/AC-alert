@@ -1,60 +1,72 @@
 import {S3} from 'aws-sdk';
 import axios from 'axios';
+import {Env, SolvedData, submissionData} from './interface';
+import {createMessage} from "./slack-mesage";
 
-const bucketName = process.env.BUCKET_NAME;
-const userName = process.env.USER_NAME;
-const apiUrl = process.env.API_URL;
-const webhookUrl = process.env.WEBHOOK_URL;
-
-if (!bucketName || !userName || !apiUrl || !webhookUrl) {
-  throw new Error('env value is missing');
-}
-
-exports.main = async function () {
+const ACChecker = async function () {
   try {
 
+    // fetch env
+    const env = Env.check({
+      bucketName: process.env.BUCKET_NAME,
+      userName: process.env.USER_NAME,
+      apiUrl: process.env.API_URL,
+      webhookUrl: process.env.WEBHOOK_URL,
+    })
+
+    // get solved data from S3
     const s3 = new S3();
-    const solvedData = await s3.getObject({
-      Bucket: bucketName,
-      Key: userName
+    const bucketObject = await s3.getObject({
+      Bucket: env.bucketName,
+      Key: env.userName
     }).promise()
       .catch((e) => {
         // ignore NoSuchKey
         if (e.statusCode !== 404) {
           throw e;
         }
+        return {
+          Body: null
+        };
       });
 
+    // return if already solved a problem today
     const today = (new Date()).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo'});
-    if (solvedData && solvedData.Body && JSON.parse(solvedData.Body.toString())?.lastAC === today) {
-      return {
-        statusCode: 200,
-      };
+    if (bucketObject?.Body) {
+      const body = SolvedData.check(JSON.parse(bucketObject.Body.toString()));
+      if (body.lastAC === today) {
+        return {
+          statusCode: 200,
+        };
+      }
     }
 
-    const response = await axios.get(apiUrl + userName, {
+    // get submission data from ac-problems API
+    const response = await axios.get(env.apiUrl + env.userName, {
       headers: {
         'Accept-Encoding': 'Encoding:gzip',
       }
     });
     const data: submissionData[] = response.data;
 
-    let solved = new Set<string>();
-    let todayAC: string[] = [];
+    // classify data by solved date
+    let solvedToday: string[] = [];
+    let solvedBefore = new Set<string>();
     for (const sub of data) {
       if (sub.result !== 'AC') continue;
       const date = new Date(sub.epoch_second * 1000);
       const solvedDate = date.toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo'});
       if (solvedDate === today) {
-        todayAC.push(sub.problem_id);
+        solvedToday.push(sub.problem_id);
       } else {
-        solved.add(sub.problem_id);
+        solvedBefore.add(sub.problem_id);
       }
     }
 
+    // look for unique AC today
     let todayData = null;
-    for (const problemId of todayAC) {
-      if (!solved.has(problemId)) {
+    for (const problemId of solvedToday) {
+      if (!solvedBefore.has(problemId)) {
         todayData = {
           lastAC: today,
           solvedProblem: problemId,
@@ -63,51 +75,29 @@ exports.main = async function () {
       }
     }
 
+    // save if todayData exists
     if (todayData) {
       await s3.putObject({
-        Bucket: bucketName,
-        Key: userName,
+        Bucket: env.bucketName,
+        Key: env.userName,
         Body: JSON.stringify(todayData)
       }).promise();
     }
 
-    const ACMessages = [
-      "さんのstreak続いています！",
-      "さん、streak続けて偉い！",
-      "さん、今日も頑張りました！",
-      "さん、さすがです！",
-      "さん、明日も頑張ろう！"
-    ];
-
-    const ACMessage = userName + ACMessages[Math.floor(Math.random() * ACMessages.length)];
-    const WAMessage = `今日はまだ解いていないよ！ => <https://kenkoooo.com/atcoder/#/user/${userName}?userPageTab=Recommendation | ${userName}さんのおすすめ問題>`;
-
-    await axios.post(webhookUrl, {
-      text: !!todayData ? ACMessage : WAMessage
+    // post message to slack
+    await axios.post(env.webhookUrl, {
+      text: createMessage(!!todayData, env.userName)
     })
 
     return {
       statusCode: 200,
     };
+
   } catch (error) {
     const body = error.stack || JSON.stringify(error, null, 2);
-    console.log(body)
     return {
       statusCode: 400,
       body: JSON.stringify(body)
     }
   }
-}
-
-interface submissionData {
-  id: number,
-  epoch_second: number,
-  problem_id: string,
-  contest_id: string,
-  user_id: string,
-  language: string,
-  point: number,
-  length: number,
-  result: string,
-  execution_time: number
 }

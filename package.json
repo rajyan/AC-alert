@@ -28,6 +28,7 @@
     "@aws-cdk/core": "1.102.0",
     "aws-sdk": "^2.903.0",
     "axios": "^0.21.1",
+    "runtypes": "^6.3.0",
     "source-map-support": "^0.5.16"
   }
 }
