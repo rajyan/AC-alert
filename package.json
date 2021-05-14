@@ -8,7 +8,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "fix": "eslint --fix {lib,bin,src,test}/*.ts && prettier -w '{lib,bin,src,test}/*.ts'"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.102.0",
@@ -26,8 +27,13 @@
     "@aws-cdk/aws-lambda-nodejs": "^1.102.0",
     "@aws-cdk/aws-s3": "^1.102.0",
     "@aws-cdk/core": "1.102.0",
+    "@typescript-eslint/eslint-plugin": "^4.23.0",
+    "@typescript-eslint/parser": "^4.23.0",
     "aws-sdk": "^2.903.0",
     "axios": "^0.21.1",
+    "eslint": "^7.26.0",
+    "eslint-config-prettier": "^8.3.0",
+    "prettier": "^2.3.0",
     "runtypes": "^6.3.0",
     "source-map-support": "^0.5.16"
   }
