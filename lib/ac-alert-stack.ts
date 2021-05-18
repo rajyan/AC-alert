@@ -21,7 +21,7 @@ export class AcAlertStack extends cdk.Stack {
 
     const func = new NodejsFunction(this, "Checker", {
       runtime: Runtime.NODEJS_14_X,
-      entry: "src/ac-checker.ts",
+      entry: "src/ac-alert.ts",
       handler: "AcAlert",
       environment: {
         BUCKET_NAME: bucket.bucketName,

@@ -29,9 +29,7 @@ export const AcAlert = async function (): Promise<{
         if (e.statusCode !== 404) {
           throw e;
         }
-        return {
-          Body: null,
-        };
+        return null;
       });
 
     // return if already solved a problem today
@@ -43,7 +41,7 @@ export const AcAlert = async function (): Promise<{
       if (body.lastAC === today) {
         return {
           statusCode: 200,
-          body: "ok",
+          body: "already solved a problem today",
         };
       }
     }
@@ -102,7 +100,7 @@ export const AcAlert = async function (): Promise<{
 
     return {
       statusCode: 200,
-      body: "ok",
+      body: "sent a message to slack",
     };
   } catch (error) {
     const body = error.stack || JSON.stringify(error, null, 2);
