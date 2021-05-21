@@ -25,12 +25,12 @@ export class AcAlertStack extends cdk.Stack {
       handler: "AcAlert",
       environment: {
         BUCKET_NAME: bucket.bucketName,
-        USER_NAME: StringParameter.fromStringParameterName(
-          this,
-          "UserName",
-          "/ac-alert/username"
-        ).stringValue,
         API_URL: "https://kenkoooo.com/atcoder/atcoder-api/results?user=",
+        USER_NAME: StringParameter.fromStringParameterName(
+            this,
+            "UserName",
+            "/ac-alert/username"
+        ).stringValue,
         WEBHOOK_URL: StringParameter.fromStringParameterName(
           this,
           "WebhookUrl",
