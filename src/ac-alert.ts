@@ -1,6 +1,6 @@
 import { S3 } from "aws-sdk";
 import axios from "axios";
-import { Env, SolvedData, SubmissionData } from "./interface";
+import { BucketEnv, SolvedData, SubmissionData } from "./interface";
 import { createMessage } from "./slack-mesage";
 
 export const AcAlert = async function (): Promise<{
@@ -9,7 +9,7 @@ export const AcAlert = async function (): Promise<{
 }> {
   try {
     // fetch env
-    const env: Env = Env.check({
+    const env: BucketEnv = BucketEnv.check({
       bucketName: process.env.BUCKET_NAME,
       userName: process.env.USER_NAME,
       apiUrl: process.env.API_URL,

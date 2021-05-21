@@ -2,12 +2,16 @@ import * as cdk from "@aws-cdk/core";
 import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
 import { Runtime } from "@aws-cdk/aws-lambda";
 import { NodejsFunction } from "@aws-cdk/aws-lambda-nodejs";
-import { StringParameter } from "@aws-cdk/aws-ssm";
 import { Rule, Schedule } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
+import { StackEnv } from "../src/interface";
+
+type AcAlertStackProps = cdk.StackProps & {
+  stackEnv: StackEnv;
+};
 
 export class AcAlertStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.Construct, id: string, props: AcAlertStackProps) {
     super(scope, id, props);
 
     const bucket = new Bucket(this, "Bucket", {
@@ -26,16 +30,8 @@ export class AcAlertStack extends cdk.Stack {
       environment: {
         BUCKET_NAME: bucket.bucketName,
         API_URL: "https://kenkoooo.com/atcoder/atcoder-api/results?user=",
-        USER_NAME: StringParameter.fromStringParameterName(
-            this,
-            "UserName",
-            "/ac-alert/username"
-        ).stringValue,
-        WEBHOOK_URL: StringParameter.fromStringParameterName(
-          this,
-          "WebhookUrl",
-          "/ac-alert/slack-webhook-url"
-        ).stringValue,
+        USER_NAME: props.stackEnv.userName,
+        WEBHOOK_URL: props.stackEnv.webhookUrl,
       },
       timeout: cdk.Duration.seconds(20),
     });

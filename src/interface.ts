@@ -1,12 +1,18 @@
 import { Record, Static, String } from "runtypes";
 
-export const Env = Record({
+export const StackEnv = Record({
+  userName: String,
+  webhookUrl: String,
+});
+export type StackEnv = Static<typeof StackEnv>;
+
+export const BucketEnv = Record({
   bucketName: String,
   userName: String,
   apiUrl: String,
   webhookUrl: String,
 });
-export type Env = Static<typeof Env>;
+export type BucketEnv = Static<typeof BucketEnv>;
 
 export const SolvedData = Record({
   lastAC: String,
