@@ -1,14 +1,16 @@
-# Welcome to your CDK TypeScript project!
+# AC alert
 
-This is a blank project for TypeScript development with CDK.
+streakが続いているどうかslackに通知するアプリ。AWSの無料枠で動いているはず
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+デフォルトでは 22時に2回(30分毎)、23時に6回（11分毎）に、当日のunique ACが AtCode Problemsに反映されるまで通知されます
 
-## Useful commands
+## 使い方
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+awsのアカウントとnpmがあれば動きます
+
+ssmに'/ac-alert/username', /ac-alert/slack-webhook-url というパラメータ名でユーザーとSlack Webhook url を追加して、以下のコマンドを実行してください
+
+```shell
+npm install
+npm run cdk deploy
+```
