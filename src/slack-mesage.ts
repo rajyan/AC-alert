@@ -11,13 +11,14 @@ const ACMessages = [
 ];
 
 const WAMessages = [
-  "今日はまだ解いていないよ！ =>",
-  "まだ間に合います！ =>",
-  "今日も頑張ろう！ =>",
-  "解いていこう！ =>",
+  "今日はまだ解いていないよ！ => ",
+  "まだ間に合います！ => ",
+  "今日も頑張ろう！ => ",
+  "解いていこう！ => ",
 ];
 
-const recommendation = "<https://kenkoooo.com/atcoder/#/user/%s?userPageTab=Recommendation | %sさんのおすすめ問題>";
+const recommendation =
+  "<https://kenkoooo.com/atcoder/#/user/%s?userPageTab=Recommendation | %sさんのおすすめ問題>";
 
 const pick = (array: string[]) => {
   return array[Math.floor(Math.random() * array.length)];
