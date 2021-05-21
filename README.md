@@ -1,4 +1,4 @@
-# AC alert
+# AC Alert
 
 streakが続いているどうかslackに通知するアプリ。AWSの無料枠で動いているはず
 
@@ -8,9 +8,7 @@ streakが続いているどうかslackに通知するアプリ。AWSの無料枠
 
 awsのアカウントとnpmがあれば動きます
 
-ssmに'/ac-alert/username', /ac-alert/slack-webhook-url というパラメータ名でユーザーとSlack Webhook url を追加して、以下のコマンドを実行してください
-
 ```shell
 npm install
-npm run cdk deploy
+USER_NAME=<ユーザー名> WEBHOOK_URL=<通知するSlackのwebhook url> npm run cdk deploy
 ```
