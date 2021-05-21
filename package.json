@@ -12,21 +12,21 @@
     "fix": "eslint --fix {lib,bin,src,test}/*.ts && prettier -w '{lib,bin,src,test}/*.ts'"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.102.0",
+    "@aws-cdk/assert": "1.104.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
-    "aws-cdk": "1.102.0",
+    "aws-cdk": "1.104.0",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/aws-events": "^1.102.0",
-    "@aws-cdk/aws-events-targets": "^1.102.0",
-    "@aws-cdk/aws-lambda-nodejs": "^1.102.0",
-    "@aws-cdk/aws-s3": "^1.102.0",
-    "@aws-cdk/core": "1.102.0",
+    "@aws-cdk/aws-events": "^1.104.0",
+    "@aws-cdk/aws-events-targets": "^1.104.0",
+    "@aws-cdk/aws-lambda-nodejs": "^1.104.0",
+    "@aws-cdk/aws-s3": "^1.104.0",
+    "@aws-cdk/core": "1.104.0",
     "@typescript-eslint/eslint-plugin": "^4.23.0",
     "@typescript-eslint/parser": "^4.23.0",
     "aws-sdk": "^2.903.0",
