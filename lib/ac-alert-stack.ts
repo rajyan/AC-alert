@@ -1,3 +1,4 @@
+import * as path from "path";
 import * as cdk from "@aws-cdk/core";
 import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
 import { Runtime } from "@aws-cdk/aws-lambda";
@@ -23,19 +24,17 @@ export class AcAlertStack extends cdk.Stack {
       lifecycleRules: [{ expiration: cdk.Duration.days(30) }],
     });
 
-    const func = new NodejsFunction(this, "Checker", {
+    const lambda = new NodejsFunction(this, "Handler", {
       runtime: Runtime.NODEJS_14_X,
-      entry: "src/ac-alert.ts",
-      handler: "AcAlert",
+      entry: path.join(__dirname, "src/ac-alert.ts"),
+      handler: "handler",
       environment: {
         BUCKET_NAME: bucket.bucketName,
         API_URL: "https://kenkoooo.com/atcoder/atcoder-api/results?user=",
-        USER_NAME: props.stackEnv.userName,
-        WEBHOOK_URL: props.stackEnv.webhookUrl,
       },
       timeout: cdk.Duration.seconds(20),
     });
-    bucket.grantReadWrite(func);
+    bucket.grantReadWrite(lambda);
 
     new Rule(this, "Rule1", {
       ruleName: "ac-alert-rule1",
@@ -44,7 +43,7 @@ export class AcAlertStack extends cdk.Stack {
         minute: "0/30",
         hour: "13",
       }),
-      targets: [new LambdaFunction(func)],
+      targets: [new LambdaFunction(lambda)],
     });
     new Rule(this, "Rule2", {
       ruleName: "ac-alert-rule2",
@@ -53,7 +52,7 @@ export class AcAlertStack extends cdk.Stack {
         minute: "0/11",
         hour: "14",
       }),
-      targets: [new LambdaFunction(func)],
+      targets: [new LambdaFunction(lambda)],
     });
   }
 }

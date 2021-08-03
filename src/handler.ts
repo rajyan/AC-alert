@@ -3,7 +3,7 @@ import axios from "axios";
 import { BucketEnv, SolvedData, SubmissionData } from "./interface";
 import { createMessage } from "./slack-mesage";
 
-export const AcAlert = async function (): Promise<{
+export const handler = async function (): Promise<{
   statusCode: number;
   body: string;
 }> {
