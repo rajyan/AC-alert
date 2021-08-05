@@ -1,11 +1,5 @@
 import { Record, Static, String, Number } from "runtypes";
 
-export const StackEnv = Record({
-  userName: String,
-  webhookUrl: String,
-});
-export type StackEnv = Static<typeof StackEnv>;
-
 export const BucketEnv = Record({
   bucketName: String,
   userName: String,

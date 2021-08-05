@@ -5,7 +5,7 @@ import { Runtime } from "@aws-cdk/aws-lambda";
 import { NodejsFunction } from "@aws-cdk/aws-lambda-nodejs";
 import { Rule, Schedule } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
-import { ParameterType, StringParameter } from "@aws-cdk/aws-ssm";
+import { StringParameter } from "@aws-cdk/aws-ssm";
 
 export class AcAlertStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
@@ -45,25 +45,18 @@ export class AcAlertStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(60),
     });
     bucket.grantReadWrite(lambda);
-
     userNameSsm.grantRead(lambda);
-
     webhookSsm.grantRead(lambda);
 
-    new Rule(
-      this,
-
-      "Rule1",
-      {
-        ruleName: "ac-alert-rule1",
-        description: "rule on 10pm",
-        schedule: Schedule.cron({
-          minute: "0/30",
-          hour: "13",
-        }),
-        targets: [new LambdaFunction(lambda)],
-      }
-    );
+    new Rule(this, "Rule1", {
+      ruleName: "ac-alert-rule1",
+      description: "rule on 10pm",
+      schedule: Schedule.cron({
+        minute: "0/30",
+        hour: "13",
+      }),
+      targets: [new LambdaFunction(lambda)],
+    });
     new Rule(this, "Rule2", {
       ruleName: "ac-alert-rule2",
       description: "rule on 11pm",
