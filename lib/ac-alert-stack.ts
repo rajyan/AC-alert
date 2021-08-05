@@ -37,7 +37,7 @@ export class AcAlertStack extends cdk.Stack {
         BUCKET_NAME: bucket.bucketName,
         API_URL: "https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions",
       },
-      timeout: cdk.Duration.seconds(20),
+      timeout: cdk.Duration.seconds(60),
     });
     bucket.grantReadWrite(lambda);
     userNameSsm.grantRead(lambda);
