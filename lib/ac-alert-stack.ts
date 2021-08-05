@@ -5,14 +5,9 @@ import { Runtime } from "@aws-cdk/aws-lambda";
 import { NodejsFunction } from "@aws-cdk/aws-lambda-nodejs";
 import { Rule, Schedule } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
-import { StackEnv } from "../src/interface";
-
-type AcAlertStackProps = cdk.StackProps & {
-  stackEnv: StackEnv;
-};
 
 export class AcAlertStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: AcAlertStackProps) {
+  constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
 
     const bucket = new Bucket(this, "Bucket", {
