@@ -5,6 +5,7 @@ import { Runtime } from "@aws-cdk/aws-lambda";
 import { NodejsFunction } from "@aws-cdk/aws-lambda-nodejs";
 import { Rule, Schedule } from "@aws-cdk/aws-events";
 import { LambdaFunction } from "@aws-cdk/aws-events-targets";
+import { ParameterType, StringParameter } from "@aws-cdk/aws-ssm";
 
 export class AcAlertStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
@@ -19,6 +20,15 @@ export class AcAlertStack extends cdk.Stack {
       lifecycleRules: [{ expiration: cdk.Duration.days(30) }],
     });
 
+    const userNameSsm = new StringParameter(this, "UserNameSsm", {
+      stringValue: "/ac-alert/username",
+      type: ParameterType.STRING,
+    });
+    const webhookSsm = new StringParameter(this, "WebHookSsm", {
+      stringValue: "/slack-webhook-url",
+      type: ParameterType.SECURE_STRING,
+    });
+
     const lambda = new NodejsFunction(this, "Handler", {
       runtime: Runtime.NODEJS_14_X,
       entry: path.join(__dirname, "src/ac-alert.ts"),
@@ -30,6 +40,8 @@ export class AcAlertStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(20),
     });
     bucket.grantReadWrite(lambda);
+    userNameSsm.grantRead(lambda);
+    webhookSsm.grantRead(lambda);
 
     new Rule(this, "Rule1", {
       ruleName: "ac-alert-rule1",

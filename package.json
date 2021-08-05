@@ -33,6 +33,7 @@
     "@aws-cdk/aws-events-targets": "^1.115.0",
     "@aws-cdk/aws-lambda-nodejs": "^1.115.0",
     "@aws-cdk/aws-s3": "^1.115.0",
+    "@aws-cdk/aws-ssm": "^1.117.0",
     "@aws-cdk/core": "^1.115.0",
     "aws-sdk": "^2.903.0",
     "axios": "^0.21.1",
