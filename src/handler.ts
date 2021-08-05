@@ -1,6 +1,6 @@
 import axios from "axios";
 import { S3, SSM } from "aws-sdk";
-import { BucketEnv, SolvedData, SubmissionData } from "./interface";
+import { BucketEnv, SolvedData, Submission } from "./interface";
 import { createMessage } from "./slack-mesage";
 
 import type { ScheduledEvent, ScheduledHandler } from "aws-lambda";
@@ -8,6 +8,8 @@ import type { ScheduledEvent, ScheduledHandler } from "aws-lambda";
 export const handler: ScheduledHandler = async function (
   event: ScheduledEvent
 ) {
+  console.log("event", JSON.stringify(event, null, 2));
+
   // get params from ssm
   const ssm = new SSM();
   const res = await ssm
@@ -49,62 +51,116 @@ export const handler: ScheduledHandler = async function (
   const today = new Date().toLocaleDateString("ja-JP", {
     timeZone: "Asia/Tokyo",
   });
+  const yesterday = epocMilliSecondToTokyoDateString(
+    new Date().setDate(new Date().getDate() - 1)
+  );
+  let epocSecond = 0;
+  let currentStreak = 0;
   if (bucketObject?.Body) {
     const body = SolvedData.check(JSON.parse(bucketObject.Body.toString()));
-    if (body.lastAC === today) {
+    epocSecond = body.lastACSecond;
+    // reset current streak if not solved yesterday
+    currentStreak =
+      epocMilliSecondToTokyoDateString(epocSecond * 1000) === yesterday
+        ? body.currentStreak
+        : 0;
+    const lastACDate = epocMilliSecondToTokyoDateString(epocSecond * 1000);
+    if (lastACDate === today) {
       return;
     }
   }
 
-  // get submission data from ac-problems API
-  const response = await axios.get(env.apiUrl + env.userName, {
-    headers: {
-      "Accept-Encoding": "Encoding:gzip",
-    },
-  });
-  const data: SubmissionData[] = response.data;
+  // get submissions from ac-problems API
+  const data: Submission[] = [];
+  for (let i = 0; i < 50; i++) {
+    const responseData: Submission[] = (
+      await axios.get(
+        `${env.apiUrl}?user=${env.userName}&from_second=${epocSecond}`,
+        {
+          headers: {
+            "Accept-Encoding": "Encoding:gzip",
+          },
+        }
+      )
+    ).data;
+    data.push(...responseData);
+    epocSecond = responseData[responseData.length - 1].epoch_second;
+
+    // sleep for 2 seconds
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
 
   // classify data by solved date
   const solvedToday: string[] = [];
-  const solvedBefore = new Set<string>();
+  const solvedBefore: string[] = [];
   for (const sub of data) {
-    if (sub.result !== "AC") continue;
-    const date = new Date(sub.epoch_second * 1000);
-    const solvedDate = date.toLocaleDateString("ja-JP", {
-      timeZone: "Asia/Tokyo",
-    });
+    if (sub.result !== "AC") {
+      continue;
+    }
+    const solvedDate = epocMilliSecondToTokyoDateString(
+      sub.epoch_second * 1000
+    );
     if (solvedDate === today) {
       solvedToday.push(sub.problem_id);
     } else {
-      solvedBefore.add(sub.problem_id);
+      solvedBefore.push(sub.problem_id);
     }
   }
 
-  // look for unique AC today
-  let todayData: SolvedData | null = null;
-  for (const problemId of solvedToday) {
-    if (!solvedBefore.has(problemId)) {
-      todayData = {
-        lastAC: today,
-        solvedProblem: problemId,
-      };
-      break;
-    }
-  }
-
-  // save if todayData exists
-  if (todayData) {
+  // put solve problems to s3
+  for (const problemId in solvedBefore) {
     await s3
       .putObject({
         Bucket: env.bucketName,
-        Key: env.userName,
-        Body: JSON.stringify(todayData),
+        Key: problemId,
+        Body: "solved",
       })
       .promise();
   }
 
-  // post message to slack
-  await axios.post(env.webhookUrl, {
-    text: createMessage(!!todayData, env.userName),
+  // look for unique AC today
+  for (const problemId of solvedToday.reverse()) {
+    const isUnique = !!(await s3
+      .getObject({
+        Bucket: env.bucketName,
+        Key: problemId,
+      })
+      .promise()
+      .catch((e) => {
+        // ignore NoSuchKey
+        if (e.statusCode !== 404) {
+          throw e;
+        }
+        return false;
+      }));
+
+    // save if solved a problem today and exit
+    if (isUnique) {
+      const todayData = {
+        lastACSecond: epocSecond,
+        currentStreak: currentStreak + 1,
+      };
+      const s3PutResponse = await s3
+        .putObject({
+          Bucket: env.bucketName,
+          Key: env.userName,
+          Body: JSON.stringify(todayData),
+        })
+        .promise();
+      console.log("s3", JSON.stringify(s3PutResponse, null, 2));
+
+      // post message to slack
+      const slackResponse = await axios.post(env.webhookUrl, {
+        text: createMessage(!!todayData, env.userName),
+      });
+      console.log("slack response", JSON.stringify(slackResponse, null, 2));
+      return;
+    }
+  }
+};
+
+const epocMilliSecondToTokyoDateString = (epocMilliSecond: number): string => {
+  return new Date(epocMilliSecond).toLocaleDateString("ja-JP", {
+    timeZone: "Asia/Tokyo",
   });
 };

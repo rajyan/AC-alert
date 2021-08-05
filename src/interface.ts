@@ -1,4 +1,4 @@
-import { Record, Static, String } from "runtypes";
+import { Record, Static, String, Number } from "runtypes";
 
 export const StackEnv = Record({
   userName: String,
@@ -15,12 +15,12 @@ export const BucketEnv = Record({
 export type BucketEnv = Static<typeof BucketEnv>;
 
 export const SolvedData = Record({
-  lastAC: String,
-  solvedProblem: String,
+  lastACSecond: Number,
+  currentStreak: Number,
 });
 export type SolvedData = Static<typeof SolvedData>;
 
-export type SubmissionData = {
+export type Submission = {
   id: number;
   epoch_second: number;
   problem_id: string;
