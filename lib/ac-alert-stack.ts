@@ -31,7 +31,7 @@ export class AcAlertStack extends cdk.Stack {
 
     const lambda = new NodejsFunction(this, "Handler", {
       runtime: Runtime.NODEJS_14_X,
-      entry: path.join(__dirname, "src/ac-alert.ts"),
+      entry: path.join(__dirname, "../src/handler.ts"),
       handler: "handler",
       environment: {
         BUCKET_NAME: bucket.bucketName,
