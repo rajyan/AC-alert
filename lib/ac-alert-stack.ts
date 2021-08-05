@@ -20,14 +20,19 @@ export class AcAlertStack extends cdk.Stack {
       lifecycleRules: [{ expiration: cdk.Duration.days(30) }],
     });
 
-    const userNameSsm = new StringParameter(this, "UserNameSsm", {
-      stringValue: "/ac-alert/username",
-      type: ParameterType.STRING,
-    });
-    const webhookSsm = new StringParameter(this, "WebHookSsm", {
-      stringValue: "/slack-webhook-url",
-      type: ParameterType.SECURE_STRING,
-    });
+    const userNameSsm = StringParameter.fromStringParameterName(
+      this,
+      "UserNameSsm",
+      "/ac-alert/username"
+    );
+    const webhookSsm = StringParameter.fromStringParameterAttributes(
+      this,
+      "WebHookSsm",
+      {
+        parameterName: "/slack-webhook-url",
+        version: 1,
+      }
+    );
 
     const lambda = new NodejsFunction(this, "Handler", {
       runtime: Runtime.NODEJS_14_X,
@@ -40,18 +45,25 @@ export class AcAlertStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(60),
     });
     bucket.grantReadWrite(lambda);
+
     userNameSsm.grantRead(lambda);
+
     webhookSsm.grantRead(lambda);
 
-    new Rule(this, "Rule1", {
-      ruleName: "ac-alert-rule1",
-      description: "rule on 10pm",
-      schedule: Schedule.cron({
-        minute: "0/30",
-        hour: "13",
-      }),
-      targets: [new LambdaFunction(lambda)],
-    });
+    new Rule(
+      this,
+
+      "Rule1",
+      {
+        ruleName: "ac-alert-rule1",
+        description: "rule on 10pm",
+        schedule: Schedule.cron({
+          minute: "0/30",
+          hour: "13",
+        }),
+        targets: [new LambdaFunction(lambda)],
+      }
+    );
     new Rule(this, "Rule2", {
       ruleName: "ac-alert-rule2",
       description: "rule on 11pm",
