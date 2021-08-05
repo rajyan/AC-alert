@@ -25,7 +25,7 @@ export class AcAlertStack extends cdk.Stack {
       handler: "handler",
       environment: {
         BUCKET_NAME: bucket.bucketName,
-        API_URL: "https://kenkoooo.com/atcoder/atcoder-api/results?user=",
+        API_URL: "https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions",
       },
       timeout: cdk.Duration.seconds(20),
     });
