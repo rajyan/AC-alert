@@ -58,10 +58,8 @@ export const handler: ScheduledHandler = async function (
     });
 
   // return if already solved a problem today
-  const today = new Date().toLocaleDateString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-  });
-  const yesterday = epocMilliSecondToTokyoDateString(
+  const today = toTokyoDateString(new Date().getMilliseconds());
+  const yesterday = toTokyoDateString(
     new Date().setDate(new Date().getDate() - 1)
   );
   let epocSecond = 0;
@@ -71,10 +69,10 @@ export const handler: ScheduledHandler = async function (
     epocSecond = body.lastACSecond;
     // reset current streak if not solved yesterday
     currentStreak =
-      epocMilliSecondToTokyoDateString(epocSecond * 1000) === yesterday
+      toTokyoDateString(epocSecond * 1000) === yesterday
         ? body.currentStreak
         : 0;
-    const lastACDate = epocMilliSecondToTokyoDateString(epocSecond * 1000);
+    const lastACDate = toTokyoDateString(epocSecond * 1000);
     if (lastACDate === today) {
       console.log("already solved a problem today");
       return;
@@ -113,9 +111,7 @@ export const handler: ScheduledHandler = async function (
     if (submission.result !== "AC") {
       continue;
     }
-    const solvedDate = epocMilliSecondToTokyoDateString(
-      submission.epoch_second * 1000
-    );
+    const solvedDate = toTokyoDateString(submission.epoch_second * 1000);
     if (solvedDate === today) {
       solvedToday.push(submission.problem_id);
     } else {
@@ -176,7 +172,7 @@ export const handler: ScheduledHandler = async function (
   }
 };
 
-const epocMilliSecondToTokyoDateString = (epocMilliSecond: number): string => {
+const toTokyoDateString = (epocMilliSecond: number): string => {
   return new Date(epocMilliSecond).toLocaleDateString("ja-JP", {
     timeZone: "Asia/Tokyo",
   });
