@@ -29,13 +29,13 @@ export class AcAlertStack extends cdk.Stack {
       this,
       "WebHookSsm",
       {
-        parameterName: "/slack-webhook-url",
+        parameterName: "/ac-alert/slack-webhook-url",
         version: 1,
       }
     );
 
     const lambda = new NodejsFunction(this, "Handler", {
-      runtime: Runtime.NODEJS_14_X,
+      runtime: Runtime.NODEJS_12_X,
       entry: path.join(__dirname, "../src/handler.ts"),
       handler: "handler",
       environment: {
