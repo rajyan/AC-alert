@@ -21,14 +21,14 @@ export const handler: ScheduledHandler = async function (
   if (!res.Parameters) {
     throw Error("Failed to get ssm parameters");
   }
-  const [userName, webhookUrl] = res.Parameters;
+  const [userNameParam, webhookUrlParam] = res.Parameters;
 
   // validate env
   const env: BucketEnv = BucketEnv.check({
     bucketName: process.env.BUCKET_NAME,
     apiUrl: process.env.API_URL,
-    userName: userName.Value,
-    webhookUrl: webhookUrl.Value,
+    userName: userNameParam.Value,
+    webhookUrl: webhookUrlParam.Value,
   });
   console.log("bucketName", env.bucketName, "userName", env.userName);
 
