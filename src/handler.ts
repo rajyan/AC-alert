@@ -168,10 +168,9 @@ export const handler: ScheduledHandler = async function (
       console.log("s3", JSON.stringify(s3PutResponse, null, 2));
 
       // post message to slack
-      const slackResponse = await axios.post(env.webhookUrl, {
+      await axios.post(env.webhookUrl, {
         text: createMessage(!!todayData, env.userName),
       });
-      console.log("slack response", JSON.stringify(slackResponse, null, 2));
       return;
     }
   }
