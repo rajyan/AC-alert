@@ -125,7 +125,7 @@ export const handler: ScheduledHandler = async function (
   console.log("today's AC", solvedToday);
 
   // put solve problems to s3
-  for (const problemId in solvedBefore) {
+  for (const problemId of solvedBefore) {
     await s3
       .putObject({
         Bucket: env.bucketName,
