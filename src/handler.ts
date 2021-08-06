@@ -30,6 +30,7 @@ export const handler: ScheduledHandler = async function (
     userName: userName.Value,
     webhookUrl: webhookUrl.Value,
   });
+  console.log("bucketName", env.bucketName, "userName", env.userName);
 
   // get solved data from S3
   const s3 = new S3();
@@ -66,9 +67,11 @@ export const handler: ScheduledHandler = async function (
         : 0;
     const lastACDate = epocMilliSecondToTokyoDateString(epocSecond * 1000);
     if (lastACDate === today) {
+      console.log("already solved a problem today");
       return;
     }
   }
+  console.log("epoc", epocSecond, "streak", currentStreak);
 
   // get submissions from ac-problems API
   const submissions: Submission[] = [];
@@ -92,6 +95,7 @@ export const handler: ScheduledHandler = async function (
     // sleep for 2 seconds
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
+  console.log("submissions", JSON.stringify(submissions, null, 2));
 
   // classify data by solved date
   const solvedToday: string[] = [];
@@ -109,6 +113,7 @@ export const handler: ScheduledHandler = async function (
       solvedBefore.push(submission.problem_id);
     }
   }
+  console.log("today's AC", solvedToday);
 
   // put solve problems to s3
   for (const problemId in solvedBefore) {
