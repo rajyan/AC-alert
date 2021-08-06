@@ -71,19 +71,22 @@ export const handler: ScheduledHandler = async function (
   }
 
   // get submissions from ac-problems API
-  const data: Submission[] = [];
+  const submissions: Submission[] = [];
   for (let i = 0; i < 50; i++) {
-    const responseData: Submission[] = (
-      await axios.get(
-        `${env.apiUrl}?user=${env.userName}&from_second=${epocSecond}`,
-        {
-          headers: {
-            "Accept-Encoding": "Encoding:gzip",
-          },
-        }
-      )
-    ).data;
-    data.push(...responseData);
+    const response = await axios.get(
+      `${env.apiUrl}?user=${env.userName}&from_second=${epocSecond}`,
+      {
+        headers: {
+          "Accept-Encoding": "Encoding:gzip",
+        },
+      }
+    );
+    const responseData: Submission[] = response.data;
+    if (responseData === []) {
+      break;
+    }
+
+    submissions.push(...responseData);
     epocSecond = responseData[responseData.length - 1].epoch_second;
 
     // sleep for 2 seconds
@@ -93,17 +96,17 @@ export const handler: ScheduledHandler = async function (
   // classify data by solved date
   const solvedToday: string[] = [];
   const solvedBefore: string[] = [];
-  for (const sub of data) {
-    if (sub.result !== "AC") {
+  for (const submission of submissions) {
+    if (submission.result !== "AC") {
       continue;
     }
     const solvedDate = epocMilliSecondToTokyoDateString(
-      sub.epoch_second * 1000
+      submission.epoch_second * 1000
     );
     if (solvedDate === today) {
-      solvedToday.push(sub.problem_id);
+      solvedToday.push(submission.problem_id);
     } else {
-      solvedBefore.push(sub.problem_id);
+      solvedBefore.push(submission.problem_id);
     }
   }
 
