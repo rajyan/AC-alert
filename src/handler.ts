@@ -87,7 +87,7 @@ export const handler: ScheduledHandler = async function (
     }
 
     submissions.push(...responseData);
-    epocSecond = responseData[responseData.length - 1].epoch_second;
+    epocSecond = responseData[responseData.length - 1].epoch_second + 1;
 
     // sleep for 2 seconds
     await new Promise((resolve) => setTimeout(resolve, 2000));
