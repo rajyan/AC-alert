@@ -82,7 +82,7 @@ export const handler: ScheduledHandler = async function (
       }
     );
     const responseData: Submission[] = response.data;
-    if (responseData === []) {
+    if (responseData.length === 0) {
       break;
     }
 
