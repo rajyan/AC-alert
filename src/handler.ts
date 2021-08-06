@@ -123,7 +123,7 @@ export const handler: ScheduledHandler = async function (
 
   // look for unique AC today
   for (const problemId of solvedToday.reverse()) {
-    const isUnique = !!(await s3
+    const problem = await s3
       .getObject({
         Bucket: env.bucketName,
         Key: problemId,
@@ -134,8 +134,9 @@ export const handler: ScheduledHandler = async function (
         if (e.statusCode !== 404) {
           throw e;
         }
-        return false;
-      }));
+        return null;
+      });
+    const isUnique = problem === null;
 
     // save if solved a problem today and exit
     if (isUnique) {
