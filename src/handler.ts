@@ -12,16 +12,25 @@ export const handler: ScheduledHandler = async function (
 
   // get params from ssm
   const ssm = new SSM();
-  const res = await ssm
-    .getParameters({
-      Names: ["/ac-alert/username", "/ac-alert/slack-webhook-url"],
-      WithDecryption: true,
-    })
-    .promise();
-  if (!res.Parameters) {
+  const userNameParam = (
+    await ssm
+      .getParameter({
+        Name: "/ac-alert/username",
+        WithDecryption: true,
+      })
+      .promise()
+  ).Parameter;
+  const webhookUrlParam = (
+    await ssm
+      .getParameter({
+        Name: "/ac-alert/slack-webhook-url",
+        WithDecryption: true,
+      })
+      .promise()
+  ).Parameter;
+  if (!userNameParam || !webhookUrlParam) {
     throw Error("Failed to get ssm parameters");
   }
-  const [userNameParam, webhookUrlParam] = res.Parameters;
 
   // validate env
   const env: BucketEnv = BucketEnv.check({
