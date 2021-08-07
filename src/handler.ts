@@ -143,7 +143,7 @@ export const handler: ScheduledHandler = async function (
 
       // post solved message to slack
       await axios.post(env.webhookUrl, {
-        text: createACMessage(env.userName),
+        text: createACMessage(todayData.currentStreak, env.userName),
       });
 
       return;

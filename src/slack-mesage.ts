@@ -24,8 +24,8 @@ const pick = (array: string[]) => {
   return array[Math.floor(Math.random() * array.length)];
 };
 
-export const createACMessage = (userName: string): string => {
-  return format(pick(ACMessages), userName);
+export const createACMessage = (currentStreak: number, userName: string): string => {
+  return `streak ${currentStreak}日目\n` + format(pick(ACMessages), userName);
 };
 
 export const createWAMessage = (userName: string): string => {
