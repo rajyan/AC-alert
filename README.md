@@ -1,4 +1,4 @@
-# AC Alert
+# AC alert
 
 streakが続いているどうかslackに通知するアプリ。AWSの無料枠で動いているはず
 
