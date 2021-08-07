@@ -148,7 +148,7 @@ export const handler: ScheduledHandler = async function (
       });
     const isUnique = problem === null;
 
-    // save if solved a problem today and exit
+    // save if solved a problem today and post to slack
     if (isUnique) {
       const todayData = {
         lastACSecond: epocSecond,
@@ -167,7 +167,6 @@ export const handler: ScheduledHandler = async function (
       await axios.post(env.webhookUrl, {
         text: createMessage(!!todayData, env.userName),
       });
-      return;
     }
   }
 };
