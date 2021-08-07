@@ -58,7 +58,7 @@ export const handler: ScheduledHandler = async function (
     });
 
   // return if already solved a problem today
-  const today = toTokyoDateString(new Date().getMilliseconds());
+  const today = toTokyoDateString(new Date().getTime());
   const yesterday = toTokyoDateString(
     new Date().setDate(new Date().getDate() - 1)
   );
