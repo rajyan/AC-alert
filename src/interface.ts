@@ -1,4 +1,4 @@
-import { Record, Static, String, Number } from "runtypes";
+import { Record, Static, String, Number, Array } from "runtypes";
 
 export const BucketEnv = Record({
   bucketName: String,
@@ -11,6 +11,7 @@ export type BucketEnv = Static<typeof BucketEnv>;
 export const SolvedData = Record({
   lastACSecond: Number,
   currentStreak: Number,
+  problemIds: Array(String),
 });
 export type SolvedData = Static<typeof SolvedData>;
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { S3, SSM } from "aws-sdk";
 import { BucketEnv, SolvedData, Submission } from "./interface";
-import { createMessage } from "./slack-mesage";
+import { createACMessage, createWAMessage } from "./slack-mesage";
 
 import type { ScheduledEvent, ScheduledHandler } from "aws-lambda";
 
@@ -62,25 +62,28 @@ export const handler: ScheduledHandler = async function (
   const yesterday = toTokyoDateString(
     new Date().setDate(new Date().getDate() - 1)
   );
-  let epocSecond = 0;
-  let currentStreak = 0;
+  let bucketData: SolvedData = {
+    lastACSecond: 0,
+    currentStreak: 0,
+    problemIds: [],
+  };
   if (bucketObject?.Body) {
-    const body = SolvedData.check(JSON.parse(bucketObject.Body.toString()));
-    epocSecond = body.lastACSecond;
+    // validate and assign
+    bucketData = SolvedData.check(JSON.parse(bucketObject.Body.toString()));
     // reset current streak if not solved yesterday
-    currentStreak =
-      toTokyoDateString(epocSecond * 1000) === yesterday
-        ? body.currentStreak
-        : 0;
-    const lastACDate = toTokyoDateString(epocSecond * 1000);
+    if (toTokyoDateString(bucketData.lastACSecond * 1000) !== yesterday) {
+      bucketData.currentStreak = 0;
+    }
+    const lastACDate = toTokyoDateString(bucketData.lastACSecond * 1000);
     if (lastACDate === today) {
       console.log("already solved a problem today");
       return;
     }
   }
-  console.log("epoc", epocSecond, "streak", currentStreak);
+  console.log("bucket data", JSON.stringify(bucketData, null, 2));
 
   // get submissions from ac-problems API
+  let epocSecond = bucketData.lastACSecond + 1;
   const submissions: Submission[] = [];
   for (let i = 0; i < 50; i++) {
     const response = await axios.get(
@@ -106,7 +109,7 @@ export const handler: ScheduledHandler = async function (
 
   // classify data by solved date
   const solvedToday: string[] = [];
-  const solvedBefore: string[] = [];
+  const solvedBefore: Set<string> = new Set(bucketData.problemIds);
   for (const submission of submissions) {
     if (submission.result !== "AC") {
       continue;
@@ -115,44 +118,19 @@ export const handler: ScheduledHandler = async function (
     if (solvedDate === today) {
       solvedToday.push(submission.problem_id);
     } else {
-      solvedBefore.push(submission.problem_id);
+      solvedBefore.add(submission.problem_id);
     }
   }
   console.log("today's AC", solvedToday);
 
-  // put solve problems to s3
-  for (const problemId of solvedBefore) {
-    await s3
-      .putObject({
-        Bucket: env.bucketName,
-        Key: problemId,
-        Body: "solved",
-      })
-      .promise();
-  }
-
   // look for unique AC today
   for (const problemId of solvedToday.reverse()) {
-    const problem = await s3
-      .getObject({
-        Bucket: env.bucketName,
-        Key: problemId,
-      })
-      .promise()
-      .catch((e) => {
-        // ignore NoSuchKey
-        if (e.statusCode !== 404) {
-          throw e;
-        }
-        return null;
-      });
-    const isUnique = problem === null;
-
-    // save if solved a problem today and post to slack
-    if (isUnique) {
-      const todayData = {
+    // save to s3 if solved a problem today
+    if (!solvedBefore.has(problemId)) {
+      const todayData: SolvedData = {
         lastACSecond: epocSecond,
-        currentStreak: currentStreak + 1,
+        currentStreak: bucketData.currentStreak + 1,
+        problemIds: [...solvedBefore, ...solvedToday],
       };
       const s3PutResponse = await s3
         .putObject({
@@ -163,12 +141,19 @@ export const handler: ScheduledHandler = async function (
         .promise();
       console.log("s3", JSON.stringify(s3PutResponse, null, 2));
 
-      // post message to slack
+      // post solved message to slack
       await axios.post(env.webhookUrl, {
-        text: createMessage(!!todayData, env.userName),
+        text: createACMessage(env.userName),
       });
+
+      return;
     }
   }
+
+  // post unsolved message to slack
+  await axios.post(env.webhookUrl, {
+    text: createWAMessage(env.userName),
+  });
 };
 
 const toTokyoDateString = (epocMilliSecond: number): string => {

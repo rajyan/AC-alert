@@ -24,10 +24,10 @@ const pick = (array: string[]) => {
   return array[Math.floor(Math.random() * array.length)];
 };
 
-export const createMessage = (solved: boolean, userName: string): string => {
-  if (solved) {
-    return format(pick(ACMessages), userName);
-  } else {
-    return pick(WAMessages) + format(recommendation, userName, userName);
-  }
+export const createACMessage = (userName: string): string => {
+  return format(pick(ACMessages), userName);
+};
+
+export const createWAMessage = (userName: string): string => {
+  return pick(WAMessages) + format(recommendation, userName, userName);
 };
