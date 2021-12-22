@@ -12,13 +12,13 @@
     "fix": "eslint --fix {lib,bin,src,test}/*.ts && prettier -w '{lib,bin,src,test}/*.ts'"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.130.0",
+    "@aws-cdk/assert": "1.137.0",
     "@types/aws-lambda": "^8.10.85",
     "@types/jest": "^27.0.2",
     "@types/node": "16.11.6",
     "@typescript-eslint/eslint-plugin": "^5.3.0",
     "@typescript-eslint/parser": "^5.3.0",
-    "aws-cdk": "^1.131.0",
+    "aws-cdk": "^1.137.0",
     "eslint": "^8.2.0",
     "eslint-config-prettier": "^8.3.0",
     "jest": "^27.3.1",
@@ -29,13 +29,13 @@
     "typescript": "~4.4.4"
   },
   "dependencies": {
-    "@aws-cdk/aws-events": "^1.130.0",
-    "@aws-cdk/aws-events-targets": "^1.131.0",
-    "@aws-cdk/aws-lambda-nodejs": "^1.131.0",
-    "@aws-cdk/aws-s3": "^1.131.0",
-    "@aws-cdk/aws-ssm": "^1.130.0",
-    "@aws-cdk/core": "^1.130.0",
-    "aws-sdk": "^2.1023.0",
+    "@aws-cdk/aws-events": "^1.137.0",
+    "@aws-cdk/aws-events-targets": "^1.137.0",
+    "@aws-cdk/aws-lambda-nodejs": "^1.137.0",
+    "@aws-cdk/aws-s3": "^1.137.0",
+    "@aws-cdk/aws-ssm": "^1.137.0",
+    "@aws-cdk/core": "^1.137.0",
+    "aws-sdk": "^2.1048.0",
     "axios": "^0.24.0",
     "esbuild": "^0.13.12",
     "source-map-support": "^0.5.20"
