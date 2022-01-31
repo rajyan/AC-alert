@@ -455,49 +455,13 @@ test("Template matches snapshot", () => {
           },
         },
         Parameters: {
-          AssetParameters1f7e277bd526ebce1983fa1e7a84a5281ec533d9187caaebb773681bbf7bf4c1S3Bucket4842F32D:
-            {
-              Type: "String",
-              Description:
-                'S3 bucket for asset "1f7e277bd526ebce1983fa1e7a84a5281ec533d9187caaebb773681bbf7bf4c1"',
-            },
-          AssetParameters1f7e277bd526ebce1983fa1e7a84a5281ec533d9187caaebb773681bbf7bf4c1S3VersionKeyD0A0B57A:
-            {
-              Type: "String",
-              Description:
-                'S3 key for asset version "1f7e277bd526ebce1983fa1e7a84a5281ec533d9187caaebb773681bbf7bf4c1"',
-            },
-          AssetParameters1f7e277bd526ebce1983fa1e7a84a5281ec533d9187caaebb773681bbf7bf4c1ArtifactHash0128B949:
-            {
-              Type: "String",
-              Description:
-                'Artifact hash for asset "1f7e277bd526ebce1983fa1e7a84a5281ec533d9187caaebb773681bbf7bf4c1"',
-            },
-          AssetParametersdf4a26b8bf1d15319224d9e624fed4a2b46ffb87839353dedccfa4ee7c1988ecS3BucketE9219975:
-            {
-              Type: "String",
-              Description:
-                'S3 bucket for asset "df4a26b8bf1d15319224d9e624fed4a2b46ffb87839353dedccfa4ee7c1988ec"',
-            },
-          AssetParametersdf4a26b8bf1d15319224d9e624fed4a2b46ffb87839353dedccfa4ee7c1988ecS3VersionKeyAC909A74:
-            {
-              Type: "String",
-              Description:
-                'S3 key for asset version "df4a26b8bf1d15319224d9e624fed4a2b46ffb87839353dedccfa4ee7c1988ec"',
-            },
-          AssetParametersdf4a26b8bf1d15319224d9e624fed4a2b46ffb87839353dedccfa4ee7c1988ecArtifactHash0DF324E7:
-            {
-              Type: "String",
-              Description:
-                'Artifact hash for asset "df4a26b8bf1d15319224d9e624fed4a2b46ffb87839353dedccfa4ee7c1988ec"',
-            },
           UserNameSsmParameter: {
             Type: "AWS::SSM::Parameter::Value<String>",
             Default: "/ac-alert/username",
           },
         },
       },
-      MatchStyle.EXACT
+      MatchStyle.SUPERSET
     )
   );
 });
