@@ -9,7 +9,7 @@ test("Template matches snapshot", () => {
     test: (val) => typeof val === "string",
     serialize: (val) => {
       return `"${val.replace(
-        /AssetParameters([A-Fa-f0-9]{64})(\w+)|(\w+) (\w+) for asset\s?(version)?\s?"([A-Fa-f0-9]{64})"/,
+        /[a-f0-9]{64}\.zip|cdk-[a-z0-9]{9}-assets-\${AWS::AccountId}-\${AWS::Region}/,
         "[HASH REMOVED]"
       )}"`;
     },
