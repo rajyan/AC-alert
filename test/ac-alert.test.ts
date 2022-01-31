@@ -1,9 +1,9 @@
 import { SynthUtils } from "@aws-cdk/assert";
-import * as cdk from "@aws-cdk/core";
+import { App } from "aws-cdk-lib";
 import * as AcAlert from "../lib/ac-alert-stack";
 
 test("Template matches snapshot", () => {
-  const app = new cdk.App();
+  const app = new App();
   const stack = new AcAlert.AcAlertStack(app, "MyTestStack", {});
   expect.addSnapshotSerializer({
     test: (val) => typeof val === "string",
