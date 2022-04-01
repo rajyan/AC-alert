@@ -31,7 +31,7 @@
     "aws-cdk-lib": "^2.0.0",
     "@aws-cdk/assert": "^2.15.0",
     "constructs": "^10.0.76",
-    "aws-sdk": "^2.1084.0",
+    "aws-sdk": "^2.1105.0",
     "axios": "^0.26.0",
     "esbuild": "^0.14.29",
     "source-map-support": "^0.5.21"
