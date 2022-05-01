@@ -33,7 +33,7 @@
     "constructs": "^10.0.76",
     "aws-sdk": "^2.1105.0",
     "axios": "^0.26.1",
-    "esbuild": "^0.14.29",
+    "esbuild": "^0.14.38",
     "source-map-support": "^0.5.21"
   }
 }
