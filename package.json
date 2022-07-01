@@ -30,7 +30,7 @@
   "dependencies": {
     "aws-cdk-lib": "^2.22.0",
     "@aws-cdk/assert": "^2.26.0",
-    "constructs": "^10.1.24",
+    "constructs": "^10.1.43",
     "aws-sdk": "^2.1166.0",
     "axios": "^0.27.2",
     "esbuild": "^0.14.42",
